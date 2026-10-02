@@ -17,7 +17,8 @@
 [CmdletBinding()]
 param(
     [Parameter(Position=0, Mandatory=$false)]
-    [string]$FolderPath = "$HOME\Pictures\Wallpapers",
+    # Resolves the real Pictures folder, even when redirected (e.g. by OneDrive)
+    [string]$FolderPath = (Join-Path ([Environment]::GetFolderPath('MyPictures')) 'Wallpapers'),
 
     [switch]$SeparateLockscreen,
     [switch]$DesktopOnly,
@@ -26,7 +27,7 @@ param(
 
 # 1. Resolve path
 if (-not (Test-Path -Path $FolderPath)) {
-    Write-Error "Directory '$FolderPath' does not exist. Please specify a valid folder path."
+    Write-Error "Directory '$FolderPath' does not exist. Create it and add some images, or pass -FolderPath."
     exit 1
 }
 
@@ -37,7 +38,7 @@ $images = Get-ChildItem -Path $resolvedPath -File | Where-Object { $_.Extension 
 
 if ($images.Count -eq 0) {
     Write-Warning "No supported image files (.jpg, .jpeg, .png, .bmp, .webp) found in '$resolvedPath'."
-    exit 0
+    exit 2
 }
 
 # 3. Define Win32 API for Desktop Wallpaper

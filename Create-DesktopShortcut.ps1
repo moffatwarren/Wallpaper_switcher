@@ -1,5 +1,6 @@
 # Creates a Desktop shortcut that runs the wallpaper switcher completely silently (no terminal popups)
-$desktopPath = [System.IO.Path]::Combine($env:USERPROFILE, "Desktop", "Switch Wallpaper.lnk")
+# GetFolderPath handles Desktops redirected by OneDrive
+$desktopPath = Join-Path ([Environment]::GetFolderPath('Desktop')) "Switch Wallpaper.lnk"
 $vbsPath = Join-Path $PSScriptRoot "RunSilent.vbs"
 
 $WshShell = New-Object -ComObject WScript.Shell

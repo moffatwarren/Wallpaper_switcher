@@ -10,6 +10,18 @@ A lightweight tool to randomly change your **Windows Desktop Wallpaper** and **L
 
 ---
 
+## Setup (any PC, any user)
+1. Clone or download this repo anywhere.
+2. Create a folder named **`Wallpapers`** inside your **Pictures** folder and put your images in it.
+   (OneDrive-redirected Pictures folders are detected automatically.)
+3. Double-click **`Make-Shortcut.bat`** to add the **`Switch Wallpaper`** shortcut to your Desktop.
+
+If the folder is missing or empty, a popup tells you instead of failing silently.
+
+> If you move the repo folder, run `Make-Shortcut.bat` again so the shortcut points to the new location.
+
+---
+
 ## How to Use
 
 ### 1. Double-Click Desktop Shortcut (Easiest & Silent)
@@ -27,18 +39,23 @@ Double-click **`Make-Shortcut.bat`** to create or refresh the **`Switch Wallpape
 If you want to run the script manually in PowerShell with visual output or options:
 
 ```powershell
-# Standard usage
-.\Set-RandomWallpaper.ps1 -FolderPath "C:\Users\moffa\Pictures\Wallpapers"
+# Standard usage (uses <Pictures>\Wallpapers)
+.\Set-RandomWallpaper.ps1
+
+# Use a different folder
+.\Set-RandomWallpaper.ps1 -FolderPath "D:\Images\Backgrounds"
 
 # Set DIFFERENT random images for Desktop and Lock Screen
-.\Set-RandomWallpaper.ps1 -FolderPath "C:\Users\moffa\Pictures\Wallpapers" -SeparateLockscreen
+.\Set-RandomWallpaper.ps1 -SeparateLockscreen
 
 # Only change Desktop wallpaper
-.\Set-RandomWallpaper.ps1 -FolderPath "C:\Users\moffa\Pictures\Wallpapers" -DesktopOnly
+.\Set-RandomWallpaper.ps1 -DesktopOnly
 
 # Only change Lock Screen background
-.\Set-RandomWallpaper.ps1 -FolderPath "C:\Users\moffa\Pictures\Wallpapers" -LockscreenOnly
+.\Set-RandomWallpaper.ps1 -LockscreenOnly
 ```
+
+> Run it with Windows PowerShell (`powershell.exe`), not PowerShell 7 (`pwsh`). The Lock Screen API is only available in Windows PowerShell. The shortcut and batch launcher already do this.
 
 ---
 
