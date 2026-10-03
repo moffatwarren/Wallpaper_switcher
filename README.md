@@ -1,67 +1,54 @@
-# Windows Wallpaper & Lockscreen Switcher
+# Wallpaper Picker
 
-A lightweight tool to randomly change your **Windows Desktop Wallpaper** and **Lock Screen Background** from a folder of images.
+A lightweight Windows tray app for browsing your wallpapers as a scrollable row of slanted cards and setting the **Desktop Wallpaper** and **Lock Screen** with one keypress.
 
 ## Features
-- **100% Silent Execution**: Double-clicking the shortcut or batch file changes your wallpapers in the background with zero command prompt popups or flashing terminal windows.
-- Updates both **Desktop Wallpaper** and **Lock Screen** simultaneously.
+- Lives in the system tray and opens instantly with **`Ctrl+Alt+W`**.
+- Opens on your current wallpaper, on the monitor your mouse is on.
+- Sets the Desktop wallpaper and Lock Screen together, or the Desktop only.
+- Picks up new images in the folder automatically.
 - Supports `.jpg`, `.jpeg`, `.png`, `.bmp`, and `.webp` images.
-- Native Windows support (requires zero external software or Python dependencies).
+- Native Windows, with zero external software, SDKs or Python needed.
 
 ---
 
-## Setup (any PC, any user)
-1. Clone or download this repo anywhere.
-2. Create a folder named **`Wallpapers`** inside your **Pictures** folder and put your images in it.
-   (OneDrive-redirected Pictures folders are detected automatically.)
-3. Double-click **`Make-Shortcut.bat`** to add the **`Switch Wallpaper`** shortcut to your Desktop.
+## Install
+1. Clone or download this repo.
+2. Double-click **`install.bat`**. It:
+   - builds the app into `%LOCALAPPDATA%\WallpaperPicker` (using the C# compiler built into Windows)
+   - adds a **Wallpaper Picker** shortcut to the Start Menu
+   - creates **`Pictures\Wallpapers`** if it doesn't exist, adding `Lowpoly_Street.png` as a starter image when it has no images (OneDrive-redirected Pictures folders are detected automatically)
+   - starts the app in the tray
+3. Put your images in **`Pictures\Wallpapers`**.
+4. Right-click the tray icon and tick **Start with Windows** so it is always available.
 
-If the folder is missing or empty, a popup tells you instead of failing silently.
+Once installed, the repo folder can be moved or deleted. To update, pull the latest changes and run `install.bat` again; your settings are kept.
 
-> If you move the repo folder, run `Make-Shortcut.bat` again so the shortcut points to the new location.
+> Windows 11 hides new tray icons in the `^` overflow. Drag the icon onto the taskbar to keep it visible.
+
+To remove it, double-click **`uninstall.bat`**. This removes the app, the Start Menu shortcut and the startup entry. Your wallpapers are not touched.
 
 ---
 
 ## How to Use
+Press **`Ctrl+Alt+W`** or click the tray icon to open the picker.
 
-### 1. Double-Click Desktop Shortcut (Easiest & Silent)
-Double-click the **`Switch Wallpaper`** shortcut on your Desktop. Your Desktop wallpaper and Lock Screen background will instantly change in the background silently.
+| Key / Mouse | Action |
+|---|---|
+| `←` `→` / `A` `D` / `H` `L` / mouse wheel | Browse |
+| `Home` `End` / `PgUp` `PgDn` | Jump |
+| `R` | Random |
+| `Enter` or double-click | Set Desktop wallpaper + Lock Screen, then close |
+| `Shift+Enter` | Set Desktop wallpaper only, then close |
+| `Esc` / `Ctrl+Alt+W` / click elsewhere | Hide |
 
----
-
-### 2. Creating / Refreshing the Desktop Shortcut
-Double-click **`Make-Shortcut.bat`** to create or refresh the **`Switch Wallpaper`** shortcut on your Desktop.
-
----
-
-### 3. Manual PowerShell Command Line Options
-
-If you want to run the script manually in PowerShell with visual output or options:
-
-```powershell
-# Standard usage (uses <Pictures>\Wallpapers)
-.\Set-RandomWallpaper.ps1
-
-# Use a different folder
-.\Set-RandomWallpaper.ps1 -FolderPath "D:\Images\Backgrounds"
-
-# Set DIFFERENT random images for Desktop and Lock Screen
-.\Set-RandomWallpaper.ps1 -SeparateLockscreen
-
-# Only change Desktop wallpaper
-.\Set-RandomWallpaper.ps1 -DesktopOnly
-
-# Only change Lock Screen background
-.\Set-RandomWallpaper.ps1 -LockscreenOnly
-```
-
-> Run it with Windows PowerShell (`powershell.exe`), not PowerShell 7 (`pwsh`). The Lock Screen API is only available in Windows PowerShell. The shortcut and batch launcher already do this.
+The tray icon's right-click menu also has **Random wallpaper**, **Open wallpapers folder**, **Start with Windows** and **Exit**.
 
 ---
 
 ## Files Included
-- `Make-Shortcut.bat` - Double-clickable batch file to run `Create-DesktopShortcut.ps1`.
-- `Create-DesktopShortcut.ps1` - Script to create/update the silent Desktop shortcut.
-- `Set-RandomWallpaper.ps1` - Main wallpaper switching script using Win32 and WinRT APIs.
-- `RunSilent.vbs` - Silent VBScript wrapper to suppress console window popups.
-- `Switch-Wallpaper.bat` - Double-clickable silent batch launcher.
+- `install.bat` / `uninstall.bat` - Double-click to install or remove.
+- `Install.ps1` - The installer: builds the exe (including its icon), copies files, creates the shortcut and wallpapers folder. Run with `-Uninstall` to remove.
+- `WallpaperPicker.cs` - Source for the tray app and picker.
+- `Set-LockScreen.ps1` - Sets the Lock Screen image (WinRT API). Installed next to the exe and called by the picker.
+- `Lowpoly_Street.png` - Starter wallpaper, copied in when the wallpapers folder has no images.
