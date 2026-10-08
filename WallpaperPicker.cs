@@ -234,6 +234,8 @@ namespace WallpaperPicker
         public ShapePath Outline;
         public ScaleTransform Scale;
         public UIElement Shade;
+        public Grid Face;
+        public double Width;
     }
 
     // One set of cards plus its loading state; replaced whenever the folder contents change
@@ -252,6 +254,7 @@ namespace WallpaperPicker
         const double Slant = 110;
         const double Gap = 14;
         const double Step = CardW - Slant + Gap;
+        const double SelectedExtra = 220;   // how much wider the selected card gets
 
         static readonly string[] Extensions = { ".jpg", ".jpeg", ".png", ".bmp", ".webp" };
         static readonly Color Accent = Color.FromRgb(0xF0, 0x87, 0x6A);
@@ -439,15 +442,21 @@ namespace WallpaperPicker
             }
         }
 
-        Card BuildCard(string file, int index)
+        static Geometry CardShape(double width)
         {
             var shape = new StreamGeometry();
             using (var ctx = shape.Open())
             {
                 ctx.BeginFigure(new Point(Slant, 0), true, true);
-                ctx.PolyLineTo(new[] { new Point(CardW, 0), new Point(CardW - Slant, CardH), new Point(0, CardH) }, true, true);
+                ctx.PolyLineTo(new[] { new Point(width, 0), new Point(width - Slant, CardH), new Point(0, CardH) }, true, true);
             }
             shape.Freeze();
+            return shape;
+        }
+
+        Card BuildCard(string file, int index)
+        {
+            var shape = CardShape(CardW);
 
             var placeholder = new TextBlock
             {
@@ -509,7 +518,7 @@ namespace WallpaperPicker
             root.MouseEnter += delegate { hovered = index; UpdateSelectionVisuals(); };
             root.MouseLeave += delegate { if (hovered == index) hovered = -1; UpdateSelectionVisuals(); };
 
-            return new Card { File = file, Root = root, Image = image, Outline = outline, Scale = scale, Shade = shade };
+            return new Card { File = file, Root = root, Image = image, Outline = outline, Scale = scale, Shade = shade, Face = face, Width = CardW };
         }
 
         // ---------- Selection & animation ----------
@@ -581,11 +590,17 @@ namespace WallpaperPicker
             double top = (h - CardH) / 2;
             double center = w / 2;
 
+            // The two cards around the scroll position share SelectedExtra (their weights sum to 1),
+            // so the widening slides smoothly from card to card and the centered one stays centered.
+            double pushed = -SelectedExtra / 2;
             for (int i = 0; i < cards.Count; i++)
             {
                 var c = cards[i];
-                double x = center + (i - offset) * Step - CardW / 2;
-                if (x > w + 40 || x + CardW < -40)
+                double d = Math.Abs(i - offset);
+                double cw = CardW + SelectedExtra * Math.Max(0, 1 - d);
+                double x = center + (i - offset) * Step - CardW / 2 + pushed;
+                pushed += cw - CardW;
+                if (x > w + 40 || x + cw < -40)
                 {
                     c.Root.Visibility = Visibility.Collapsed;
                     continue;
@@ -594,7 +609,16 @@ namespace WallpaperPicker
                 Canvas.SetLeft(c.Root, x);
                 Canvas.SetTop(c.Root, top);
 
-                double d = Math.Abs(i - offset);
+                if (Math.Abs(cw - c.Width) > 0.01)
+                {
+                    c.Width = cw;
+                    c.Root.Width = cw;
+                    var shape = CardShape(cw);
+                    c.Face.Clip = shape;
+                    c.Outline.Data = shape;
+                    c.Scale.CenterX = cw / 2;
+                }
+
                 double s = 0.93 + 0.07 * Math.Max(0, 1 - d);
                 c.Scale.ScaleX = s;
                 c.Scale.ScaleY = s;
